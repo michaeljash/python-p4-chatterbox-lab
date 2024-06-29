@@ -1,34 +1,40 @@
 #!/usr/bin/env python3
 
-from random import choice as rc
-
-from faker import Faker
-
 from app import app
-from models import db, Message
+from models import db, Customer, Review, Item, Message
 
-fake = Faker()
+with app.app_context():
 
-usernames = [fake.first_name() for i in range(4)]
-if "Duane" not in usernames:
-    usernames.append("Duane")
-
-def make_messages():
-
+    Customer.query.delete()
+    Review.query.delete()
+    Item.query.delete()
     Message.query.delete()
     
-    messages = []
+    
+    customer1 = Customer(name='Tal Yuri')
+    customer2 = Customer(name='Raha Rosario')
+    customer3 = Customer(name='Luca Mahan')
+    db.session.add_all([customer1, customer2, customer3])
+    db.session.commit()
 
-    for i in range(20):
-        message = Message(
-            body=fake.sentence(),
-            username=rc(usernames),
-        )
-        messages.append(message)
 
-    db.session.add_all(messages)
-    db.session.commit()        
+    item1 = Item(name='Laptop Backpack', price=49.99)
+    item2 = Item(name='Insulated Coffee Mug', price=9.99)
+    item3 = Item(name='6 Foot HDMI Cable', price=12.99)
+    db.session.add_all([item1, item2, item3])
+    db.session.commit()
 
-if __name__ == '__main__':
-    with app.app_context():
-        make_messages()
+    
+    review1 = Review(comment="zipper broke the first week", customer=customer1, item=item1)
+    review2 = Review(comment="love this backpack!", customer=customer2, item=item1)
+    review3 = Review(comment="coffee stays hot for hours!", customer=customer1, item=item2)
+    review4 = Review(comment="best coffee mug ever!", customer=customer3, item=item2)
+    review5 = Review(comment="cable too short", customer=customer3, item=item3)
+    db.session.add_all([review1, review2, review3, review4, review5])
+    db.session.commit()
+
+
+    message1 = Message(body='Hello World!', username='user1')
+    message2 = Message(body='Flask is great!', username='user2')
+    db.session.add_all([message1, message2])
+    db.session.commit()
